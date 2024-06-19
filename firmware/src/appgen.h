@@ -61,7 +61,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "DefMenuGen.h"
 
 
-#define MAX_NBR_LINE 4
+#define MAX_LIGNES_LCD 4
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility

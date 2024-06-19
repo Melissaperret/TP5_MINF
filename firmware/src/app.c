@@ -81,8 +81,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 APP_DATA appData;
 
-bool etatTCPIP = false;
-bool tcpStatSave = false;
+bool etatIP = false;
+bool ipSave = false;
 
 S_ParamGen LocalParamGen;
 S_ParamGen RemoteParamGen;
@@ -225,7 +225,7 @@ void APP_Tasks ( void )
             //[ms] / 0 => valeur par défaut
             appData.keepAlive.keepAliveUnackLim = 2;
             //[nb de tentatives] / 0 => valeur par défaut
-            etatTCPIP = !TCPIP_TCP_OptionsSet(appData.socket, TCP_OPTION_KEEP_ALIVE,&(appData.keepAlive));
+            etatIP = !TCPIP_TCP_OptionsSet(appData.socket, TCP_OPTION_KEEP_ALIVE,&(appData.keepAlive));
 
             
             appData.state = APP_TCPIP_WAIT_FOR_CONNECTION;
@@ -243,7 +243,7 @@ void APP_Tasks ( void )
                 // We got a connection
                 appData.state = APP_TCPIP_SERVING_CONNECTION;
                 SYS_CONSOLE_MESSAGE("Received a connection\r\n");
-                etatTCPIP = true;
+                etatIP = true;
             }
         }
         break;
@@ -278,7 +278,7 @@ void APP_Tasks ( void )
                     wCurrentChunk = wMaxGet - w;
                 // Transfer the data out of the TCP RX FIFO and into our local processing buffer.
                 TCPIP_TCP_ArrayGet(appData.socket, AppBuffer, wCurrentChunk);
-                GetMessage((int8_t*)AppBuffer, &RemoteParamGen, &tcpStatSave);  // Récuèpère le message envoyé depuis putty 
+                GetMessage((int8_t*)AppBuffer, &RemoteParamGen, &ipSave);  // Récuèpère le message envoyé depuis putty 
 
                 // Perform the "ToUpper" operation on each data byte
                 for(w2 = 0; w2 < wCurrentChunk; w2++)
@@ -300,7 +300,7 @@ void APP_Tasks ( void )
                 //Protection pour éviter les mauvaises trames 
                 if((AppBuffer[0] == '!') && (AppBuffer[1] == 'S'))
                 {
-                    SendMessage((int8_t*)AppBuffer, &RemoteParamGen, tcpStatSave);
+                    SendMessage((int8_t*)AppBuffer, &RemoteParamGen, ipSave);
                     wCurrentChunk = TAILLE_MAX_MESSAGE;  //changer le define 
                 }
 

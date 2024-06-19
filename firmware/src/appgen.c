@@ -149,7 +149,9 @@ void APPGEN_Tasks ( void )
 {
      S_ParamGen structInterAPP;    //Déclaration de la variable accueillant temporairement les valeurs de pParam
      static bool changementDebranchement = false;
-     uint8_t indexClearLine;
+     
+     static uint16_t attente = 0; 
+     uint16_t compteur = 500; 
      
     /* Check the application's current state. */
     switch ( appgenData.state )
@@ -191,58 +193,65 @@ void APPGEN_Tasks ( void )
         {
             if(appgenData.newIp)
             {
-                appgenData.newIp = false;
+                attente ++;
                 
-                for(indexClearLine = 1; indexClearLine <= MAX_NBR_LINE; indexClearLine++)
-                {
-                    lcd_ClearLine(indexClearLine);
-                }
-                
-                lcd_gotoxy(6,2);
+                lcd_gotoxy(7,2);
                 printf_lcd("Adr. IP");
-                lcd_gotoxy(1,3);
-                lcd_put_string_ram(appgenData.str);
-            }
-            
-            //Toggle de la LED, afin de voir le temps d'interruption
-            BSP_LEDToggle(BSP_LED_2);
-                        
-            //Test si l'USB est branché
-            if(etatTCPIP == true)
-            {
-                lcd_bl_on();                    
-                changementDebranchement = true;
-                //MENU_Execute(&RemoteParamGen, false);
-                GENSIG_UpdateSignal(&RemoteParamGen);
-                GENSIG_UpdatePeriode(&RemoteParamGen);
-                
-                
-                if(tcpStatSave == true)  //Si une demande de sauvegarde a été effectué, afficher le menu de sauvegarde
-                {
-                    MENU_DemandeSave();
-                }
-                else
-                {
-                    MENU_Execute(&RemoteParamGen, false);
-                }
-                
+                lcd_gotoxy(1,3);        
+                printf_lcd("%s", appgenData.str);
+                lcd_bl_on();
 
-            }
-            else  // Si l'USB n'est pas branché, mettre à jour les signaux avec les paramètres locaux
-            {
-                if(changementDebranchement == true)
+                if(attente >= compteur)
                 {
+                    appgenData.newIp = false; 
+                    attente = 0; 
                     MENU_SelectMode(&LocalParamGen, 1);
-                    changementDebranchement = false;
-                } 
+                }
+                
+            }
+            else 
+                {
 
-                MENU_Execute(&LocalParamGen, true);
-                GENSIG_UpdateSignal(&LocalParamGen);
-                GENSIG_UpdatePeriode(&LocalParamGen);
-            }     
-            
+                //Toggle de la LED, afin de voir le temps d'interruption
+                BSP_LEDToggle(BSP_LED_2);
+
+                //Test si l'USB est branché
+                if(etatIP == true)
+                {
+                    lcd_bl_on();                    
+                    changementDebranchement = true;
+                    //MENU_Execute(&RemoteParamGen, false);
+                    GENSIG_UpdateSignal(&RemoteParamGen);
+                    GENSIG_UpdatePeriode(&RemoteParamGen);
+
+
+                    if(ipSave == true)  //Si une demande de sauvegarde a été effectué, afficher le menu de sauvegarde
+                    {
+                        MENU_DemandeSave();
+                    }
+                    else
+                    {
+                        MENU_Execute(&RemoteParamGen, false);
+                    }
+
+
+                }
+                else  // Si l'USB n'est pas branché, mettre à jour les signaux avec les paramètres locaux
+                {
+                    if(changementDebranchement == true)
+                    {
+                        MENU_SelectMode(&LocalParamGen, 1);
+                        changementDebranchement = false;
+                    } 
+
+                    MENU_Execute(&LocalParamGen, true);
+                    GENSIG_UpdateSignal(&LocalParamGen);
+                    GENSIG_UpdatePeriode(&LocalParamGen);
+                }     
+            }
             APP_Gen_UpdateState(APPGEN_STATE_WAIT);
             break;
+            
 
         }
         
@@ -266,8 +275,12 @@ void APPGEN_Tasks ( void )
 void APPGEN_DispNewAddress (IPV4_ADDR ipAddr)
 {
     appgenData.newIp = true;
-    lcd_ClearLine(2);
- 
+    uint8_t indexClearLine;
+    
+    for(indexClearLine = 1; indexClearLine <= MAX_LIGNES_LCD; indexClearLine++)  // En ref au Issues du TP2 :), pour clear les lignes du lcd 
+        {
+            lcd_ClearLine(indexClearLine);
+        }
     {
         sprintf(appgenData.str, "IP : %d.%d.%d.%d", ipAddr.v[0], ipAddr.v[1], ipAddr.v[2], ipAddr.v[3]);
     }
@@ -342,7 +355,7 @@ void MENU_DemandeSave(void)
     {
         // Réinitialise le compteur d'affichage et l'état de sauvegarde
         comptAffichageSauvegarde = 0;
-        tcpStatSave = false;
+        ipSave = false;
     }
 }
 /*******************************************************************************

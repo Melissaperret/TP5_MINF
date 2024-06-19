@@ -64,8 +64,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "C:\microchip\harmony\v2_06\framework\tcpip\tcp.h"
 
 
-extern bool etatTCPIP;
-extern bool tcpStatSave;
+extern bool etatIP;
+extern bool ipSave;
 
 #define TAILLE_MAX_MESSAGE 31
 
