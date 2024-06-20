@@ -67,7 +67,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 extern bool etatIP;
 extern bool ipSave;
 
-#define TAILLE_MAX_MESSAGE 31
+#define TAILLE_MAX_MESSAGE_ECHO 31
 
 // *****************************************************************************
 // *****************************************************************************

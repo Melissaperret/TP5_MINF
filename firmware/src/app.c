@@ -153,7 +153,7 @@ void APP_Tasks ( void )
     SYS_CMD_READY_TO_READ();
     switch(appData.state)
     {
-        case APP_TCPIP_WAIT_INIT:
+        case APP_TCPIP_WAIT_INIT: // Attente de l'initialisation de la pile TCP/IP
             tcpipStat = TCPIP_STACK_Status(sysObj.tcpip);
             if(tcpipStat < 0)
             {   // some error occurred
@@ -164,6 +164,7 @@ void APP_Tasks ( void )
             {
                 // now that the stack is ready we can check the
                 // available interfaces
+                // La pile est prête, vérification des interfaces disponibles
                 nNets = TCPIP_STACK_NumberOfNetworksGet();
                 for(i = 0; i < nNets; i++)
                 {
@@ -179,7 +180,7 @@ void APP_Tasks ( void )
 #endif  // defined(TCPIP_STACK_USE_NBNS)
 
                 }
-                appData.state = APP_TCPIP_WAIT_FOR_IP;
+                appData.state = APP_TCPIP_WAIT_FOR_IP; // Transition vers l'attente d'une adresse IP
 
             }
             break;
@@ -205,12 +206,12 @@ void APP_Tasks ( void )
                     SYS_CONSOLE_MESSAGE(TCPIP_STACK_NetNameGet(netH));
                     SYS_CONSOLE_MESSAGE(" IP Address: ");
                     SYS_CONSOLE_PRINT("%d.%d.%d.%d \r\n", ipAddr.v[0], ipAddr.v[1], ipAddr.v[2], ipAddr.v[3]);
-                    APPGEN_DispNewAddress(ipAddr);
+                    APPGEN_DispNewAddress(ipAddr); // Affichage de la nouvelle adresse IP
                 }
                 appData.state = APP_TCPIP_OPENING_SERVER;
             }
             break;
-        case APP_TCPIP_OPENING_SERVER:
+        case APP_TCPIP_OPENING_SERVER: // Ouverture du serveur
         {
             SYS_CONSOLE_PRINT("Waiting for Client Connection on port: %d\r\n", SERVER_PORT);
             appData.socket = TCPIP_TCP_ServerOpen(IP_ADDRESS_TYPE_IPV4, SERVER_PORT, 0);
@@ -232,7 +233,7 @@ void APP_Tasks ( void )
         }
         break;
 
-        case APP_TCPIP_WAIT_FOR_CONNECTION:
+        case APP_TCPIP_WAIT_FOR_CONNECTION: // Attente d'une connexion client
         {
             if (!TCPIP_TCP_IsConnected(appData.socket))
             {
@@ -248,7 +249,7 @@ void APP_Tasks ( void )
         }
         break;
 
-        case APP_TCPIP_SERVING_CONNECTION:
+        case APP_TCPIP_SERVING_CONNECTION: // Service de la connexion
         {
             if (!TCPIP_TCP_IsConnected(appData.socket))
             {
@@ -281,32 +282,35 @@ void APP_Tasks ( void )
                 GetMessage((int8_t*)AppBuffer, &RemoteParamGen, &ipSave);  // Récuèpère le message envoyé depuis putty 
 
                 // Perform the "ToUpper" operation on each data byte
+                // Effectuer l'opération "ToUpper" sur chaque octet de données
                 for(w2 = 0; w2 < wCurrentChunk; w2++)
                 {
                     i = AppBuffer[w2];
-                    if(i >= 'a' && i <= 'z')
+                    if(i >= 'a' && i <= 'z') // Vérifie si le caractère est une lettre minuscule
                     {
-                            i -= ('a' - 'A');
-                            AppBuffer[w2] = i;
+                            i -= ('a' - 'A'); // Convertit la lettre minuscule en majuscule
+                            AppBuffer[w2] = i; // Met à jour le buffer avec la lettre majuscule
                     }
-                    else if(i == '\e')   //escape
+                    else if(i == '\e')  // Vérifie si le caractère est une échappée
                     {
-                        appData.state = APP_TCPIP_CLOSING_CONNECTION;
-                        SYS_CONSOLE_MESSAGE("Connection was closed\r\n");
+                        appData.state = APP_TCPIP_CLOSING_CONNECTION; // Change l'état pour fermer la connexion
+                        SYS_CONSOLE_MESSAGE("Connection was closed\r\n"); // Affiche un message de fermeture de connexion
                     }
                 }
                 
                 
                 //Protection pour éviter les mauvaises trames 
-                if((AppBuffer[0] == '!') && (AppBuffer[1] == 'S'))
+                if((AppBuffer[0] == '!') && (AppBuffer[1] == 'S')) // Vérifie un format spécifique de message
                 {
-                    SendMessage((int8_t*)AppBuffer, &RemoteParamGen, ipSave);
-                    wCurrentChunk = TAILLE_MAX_MESSAGE;  //changer le define 
+                    SendMessage((int8_t*)AppBuffer, &RemoteParamGen, ipSave);  // Envoie le message
+                    wCurrentChunk = TAILLE_MAX_MESSAGE_ECHO; // Définit la taille maximale du message
                 }
+                
 
                 // Transfer the data out of our local processing buffer and into the TCP TX FIFO.
-                SYS_CONSOLE_PRINT("Server Sending %s\r\n", AppBuffer);
-                TCPIP_TCP_ArrayPut(appData.socket, AppBuffer, wCurrentChunk);
+                // Transfère les données du buffer local vers le FIFO TX TCP
+                SYS_CONSOLE_PRINT("Server Sending %s\r\n", AppBuffer); // Affiche le message envoyé sur la console
+                TCPIP_TCP_ArrayPut(appData.socket, AppBuffer, wCurrentChunk); // Envoie les données
                
                 
 
@@ -320,6 +324,7 @@ void APP_Tasks ( void )
             TCPIP_TCP_Close(appData.socket);
             appData.socket = INVALID_SOCKET;
             appData.state = APP_TCPIP_WAIT_FOR_IP;
+            etatIP = false; 
         }
         break;
         default:

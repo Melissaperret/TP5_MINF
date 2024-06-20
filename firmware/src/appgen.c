@@ -62,7 +62,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "Mc32gest_SerComm.h"
 #include "app.h"
 #include "Mc32gestSpiDac.h"
-#include "driver/tmr/drv_tmr_static.h" //driver timer static
+#include "driver/tmr/drv_tmr_static.h" 
 
 // *****************************************************************************
 // *****************************************************************************
@@ -126,9 +126,9 @@ APPGEN_DATA appgenData;
 void APPGEN_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
-    appgenData.state = APPGEN_STATE_INIT;
+    appgenData.state = APPGEN_STATE_INIT; // Initialisation de l'état de l'application
     
-    appgenData.newIp = false;
+    appgenData.newIp = false; // Initialisation de la variable newIp à false
 
     
     /* TODO: Initialize your application's state machine and other
@@ -148,7 +148,7 @@ void APPGEN_Initialize ( void )
 void APPGEN_Tasks ( void )
 {
      S_ParamGen structInterAPP;    //Déclaration de la variable accueillant temporairement les valeurs de pParam
-     static bool changementDebranchement = false;
+     static bool changementEtat = false;
      
      static uint16_t attente = 0; 
      uint16_t compteur = 500; 
@@ -197,8 +197,8 @@ void APPGEN_Tasks ( void )
                 
                 lcd_gotoxy(7,2);
                 printf_lcd("Adr. IP");
-                lcd_gotoxy(1,3);        
-                printf_lcd("%s", appgenData.str);
+                lcd_gotoxy(1,3);   
+                lcd_put_string_ram(appgenData.str); // Affichage de l'adresse IP
                 lcd_bl_on();
 
                 if(attente >= compteur)
@@ -219,7 +219,7 @@ void APPGEN_Tasks ( void )
                 if(etatIP == true)
                 {
                     lcd_bl_on();                    
-                    changementDebranchement = true;
+                    changementEtat = true;
                     //MENU_Execute(&RemoteParamGen, false);
                     GENSIG_UpdateSignal(&RemoteParamGen);
                     GENSIG_UpdatePeriode(&RemoteParamGen);
@@ -238,10 +238,10 @@ void APPGEN_Tasks ( void )
                 }
                 else  // Si l'USB n'est pas branché, mettre à jour les signaux avec les paramètres locaux
                 {
-                    if(changementDebranchement == true)
+                    if(changementEtat == true)
                     {
                         MENU_SelectMode(&LocalParamGen, 1);
-                        changementDebranchement = false;
+                        changementEtat = false;
                     } 
 
                     MENU_Execute(&LocalParamGen, true);
@@ -282,7 +282,7 @@ void APPGEN_DispNewAddress (IPV4_ADDR ipAddr)
             lcd_ClearLine(indexClearLine);
         }
     {
-        sprintf(appgenData.str, "IP : %d.%d.%d.%d", ipAddr.v[0], ipAddr.v[1], ipAddr.v[2], ipAddr.v[3]);
+        sprintf(appgenData.str, "IP : %d.%d.%d.%d", ipAddr.v[0], ipAddr.v[1], ipAddr.v[2], ipAddr.v[3]); // Formate l'adresse IP en chaîne de caractères et la stocke dans appgenData.str
     }
 }
 
@@ -333,12 +333,12 @@ void MENU_DemandeSave(void)
 {
     static bool compteurPremierPassage = true;  // Indique si c'est le premier passage dans la fonction
     static uint8_t comptAffichageSauvegarde = 0;  // Compteur pour l'affichage du message de sauvegarde
-    uint8_t indexClearLine = 0;  // Index pour effacer les lignes de l'écran
+    uint8_t indexClearLine;  // Index pour effacer les lignes de l'écran
  
     if (compteurPremierPassage == true)
     {
         // Efface les premières lignes de l'écran LCD
-        for (indexClearLine = 0; indexClearLine < 5; indexClearLine++)
+        for (indexClearLine = 1; indexClearLine <= MAX_LIGNES_LCD; indexClearLine++)
         {
             lcd_ClearLine(indexClearLine);
         }
@@ -356,6 +356,7 @@ void MENU_DemandeSave(void)
         // Réinitialise le compteur d'affichage et l'état de sauvegarde
         comptAffichageSauvegarde = 0;
         ipSave = false;
+        compteurPremierPassage = true;
     }
 }
 /*******************************************************************************

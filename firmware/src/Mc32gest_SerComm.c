@@ -50,7 +50,7 @@ bool GetMessage(int8_t *USBReadBuffer, S_ParamGen *pParam, bool *SaveTodo)
     char *pt_Sauvegarde = 0;
  
     // Recherche des différents paramètres dans le buffer reçu
-    pt_Forme = strstr((char*)USBReadBuffer, "S");
+    pt_Forme = strstr((char*)USBReadBuffer, "S"); // Recherche du paramètre de la forme du signal
     pt_Frequence = strstr((char*)USBReadBuffer, "F");
     pt_Amplitude = strstr((char*)USBReadBuffer, "A");
     pt_Offset = strstr((char*)USBReadBuffer, "O");
@@ -79,7 +79,7 @@ bool GetMessage(int8_t *USBReadBuffer, S_ParamGen *pParam, bool *SaveTodo)
         }
  
         // Mise à jour des paramètres à partir du message reçu
-        pParam->Frequence = atoi(pt_Frequence + 2); // Décalage de 2 pour ignorer 'F='
+        pParam->Frequence = atoi(pt_Frequence + 2); // Décalage de 2 pour ignorer 'F=' + Conversion de l'amplitude en entier
         pParam->Amplitude = atoi(pt_Amplitude + 2); // Décalage de 2 pour ignorer 'A='
         pParam->Offset = atoi(pt_Offset + 2); 	    // Décalage de 2 pour ignorer 'O='
         *SaveTodo = atoi(pt_Sauvegarde + 2); 	    // Décalage de 2 pour ignorer 'W='

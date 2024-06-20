@@ -279,9 +279,7 @@ void MENU_Execute(S_ParamGen *pParam, bool local)
         }
     }
     else
-    {   
-        lcd_ClearLine(1);
-        
+    {           
         lcd_gotoxy(1,1);
         printf_lcd("#Forme = %s   ", MenuShapes[pParam->Forme]);
         lcd_gotoxy(1,2);
@@ -312,7 +310,6 @@ void MENU_Execute(S_ParamGen *pParam, bool local)
 
 void MENU_SelectMode(S_ParamGen *pParam, int8_t selectModeMenuCounter)
 {
-        
     //Actualisation de l'affichage du LCD
     lcd_gotoxy(1,1);
     printf_lcd(" Forme = %s", MenuShapes[pParam->Forme]);
