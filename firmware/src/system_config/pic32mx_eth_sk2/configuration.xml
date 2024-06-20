@@ -1568,7 +1568,7 @@
       <Template dnOrder="17">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx_eth_sk2</Path>
-        <Checksum dnOrder="2">65B5681945747CDAB5D464EC12BA9A3F</Checksum>
+        <Checksum dnOrder="2">C18D2C66A9A4EAC96FF9EFE6824B445B</Checksum>
       </Template>
     </Templates>
     <CompilerItems dnOrder="2">
